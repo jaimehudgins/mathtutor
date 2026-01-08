@@ -194,24 +194,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error analyzing homework:", error);
 
-    // More specific error messages
-    if (error instanceof Error) {
-      if (error.message.includes("API key")) {
-        return NextResponse.json(
-          { error: "API key error. Please check configuration." },
-          { status: 500 },
-        );
-      }
-      if (error.message.includes("rate")) {
-        return NextResponse.json(
-          { error: "Too many requests. Please wait a moment and try again." },
-          { status: 429 },
-        );
-      }
-    }
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     return NextResponse.json(
-      { error: "Failed to analyze homework. Please try again." },
+      { error: `API Error: ${errorMessage}` },
       { status: 500 },
     );
   }
