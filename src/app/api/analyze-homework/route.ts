@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Meow! 😿 The Helper Cat is taking a catnap right now. Please let your aunt/uncle know so they can wake me up!",
+            "Meow! 😿 The Helper Cat is taking a catnap right now. Let Aunt Jaime know that I need some kibble!",
         },
         { status: 503 },
       );
