@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/lib/gamification';
-import { X, Star, Trophy, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/lib/gamification";
+import { X, Star, Trophy, TrendingUp } from "lucide-react";
 
 interface XPPopupProps {
   xpEarned: number;
@@ -49,18 +49,16 @@ export function XPPopup({
     return (
       <div
         className={cn(
-          'fixed top-4 right-4 z-50 transition-all duration-300',
-          visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+          "fixed top-4 right-4 z-50 transition-all duration-300",
+          visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4",
         )}
       >
         <div className="bg-gradient-to-r from-purple-600 to-fuchsia-500 rounded-lg px-4 py-2 shadow-lg neon-glow-purple">
           <div className="flex items-center gap-2 text-white font-bold">
             <Star className="w-5 h-5 text-yellow-300" />
-            <span>+{xpEarned} XP</span>
+            <span>+{xpEarned} Catnip 🌿</span>
             {currentStreak >= 3 && (
-              <span className="text-orange-300 ml-1">
-                {currentStreak}🔥
-              </span>
+              <span className="text-orange-300 ml-1">{currentStreak}🔥</span>
             )}
           </div>
         </div>
@@ -77,8 +75,8 @@ export function XPPopup({
   return (
     <div
       className={cn(
-        'fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300',
-        visible ? 'opacity-100' : 'opacity-0'
+        "fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300",
+        visible ? "opacity-100" : "opacity-0",
       )}
     >
       {/* Backdrop */}
@@ -90,11 +88,11 @@ export function XPPopup({
       {/* Modal */}
       <div
         className={cn(
-          'relative bg-gradient-to-b from-gray-900 to-gray-950 rounded-2xl p-6 max-w-md w-full border-2 border-purple-500/50 shadow-2xl transition-all duration-300',
-          visible ? 'scale-100' : 'scale-90'
+          "relative bg-gradient-to-b from-gray-900 to-gray-950 rounded-2xl p-6 max-w-md w-full border-2 border-purple-500/50 shadow-2xl transition-all duration-300",
+          visible ? "scale-100" : "scale-90",
         )}
         style={{
-          boxShadow: '0 0 40px rgba(147, 51, 234, 0.3)',
+          boxShadow: "0 0 40px rgba(147, 51, 234, 0.3)",
         }}
       >
         {/* Close button */}
@@ -123,11 +121,16 @@ export function XPPopup({
 
         {/* New Badges Section */}
         {newBadges.length > 0 && (
-          <div className={cn('text-center', newLevel && 'mt-4 pt-4 border-t border-purple-500/30')}>
+          <div
+            className={cn(
+              "text-center",
+              newLevel && "mt-4 pt-4 border-t border-purple-500/30",
+            )}
+          >
             <div className="flex items-center justify-center gap-2 mb-3">
               <Trophy className="text-yellow-400" size={24} />
               <h3 className="text-lg font-bold neon-text-yellow">
-                {newBadges.length === 1 ? 'New Badge!' : 'New Badges!'}
+                {newBadges.length === 1 ? "New Badge!" : "New Badges!"}
               </h3>
             </div>
             <div className="flex justify-center gap-4 flex-wrap">
@@ -136,7 +139,9 @@ export function XPPopup({
                   <div className="text-4xl mb-1">{badge.icon}</div>
                   <p className="font-bold text-white text-sm">{badge.name}</p>
                   <p className="text-xs text-gray-400">{badge.description}</p>
-                  <p className="text-xs text-yellow-400 mt-1">+{badge.xpReward} XP</p>
+                  <p className="text-xs text-yellow-400 mt-1">
+                    +{badge.xpReward} Catnip
+                  </p>
                 </div>
               ))}
             </div>
@@ -144,18 +149,24 @@ export function XPPopup({
         )}
 
         {/* XP Breakdown */}
-        <div className={cn(
-          'mt-4 pt-4 border-t border-purple-500/30',
-          !newLevel && newBadges.length === 0 && 'mt-0 pt-0 border-t-0'
-        )}>
+        <div
+          className={cn(
+            "mt-4 pt-4 border-t border-purple-500/30",
+            !newLevel && newBadges.length === 0 && "mt-0 pt-0 border-t-0",
+          )}
+        >
           <div className="flex items-center justify-center gap-2 mb-2">
             <TrendingUp className="text-green-400" size={18} />
-            <span className="font-bold text-green-400">+{xpEarned} XP Total</span>
+            <span className="font-bold text-green-400">
+              +{xpEarned} Catnip Total 🌿
+            </span>
           </div>
           {xpBreakdown.length > 0 && (
             <div className="text-sm text-gray-300 space-y-1">
               {xpBreakdown.map((line, i) => (
-                <p key={i} className="text-center">{line}</p>
+                <p key={i} className="text-center">
+                  {line}
+                </p>
               ))}
             </div>
           )}

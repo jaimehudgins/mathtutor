@@ -262,7 +262,8 @@ export default function Home() {
                   <li className="flex items-start gap-2">
                     <span className="neon-text-pink">🎮</span>
                     <span>
-                      Play the flash card game to earn +5 XP per correct answer!
+                      Play the flash card game to earn +5 Catnip per correct
+                      answer!
                     </span>
                   </li>
                   <li className="flex items-start gap-2">

@@ -158,7 +158,7 @@ export function FlashCardGame({
             Flash Card Quiz
           </h2>
           <p className="text-gray-400 mt-2">
-            Test your knowledge and earn XP! 🐱
+            Test your knowledge and earn Catnip! 🐱
           </p>
         </div>
 
@@ -197,7 +197,7 @@ export function FlashCardGame({
         </div>
 
         <p className="text-center text-gray-500 text-sm mt-6">
-          +{XP_PER_CORRECT} XP for each correct answer!
+          +{XP_PER_CORRECT} Catnip for each correct answer!
         </p>
       </div>
     );
@@ -238,7 +238,7 @@ export function FlashCardGame({
                 +{xpEarned}
                 <Sparkles size={20} />
               </div>
-              <div className="text-sm text-green-400">XP Earned</div>
+              <div className="text-sm text-green-400">Catnip Earned</div>
             </div>
           </div>
 
@@ -358,7 +358,7 @@ export function FlashCardGame({
 
       {/* Score */}
       <div className="mt-4 text-center text-sm text-gray-500">
-        Score: {score} correct • +{xpEarned} XP earned
+        Score: {score} correct • +{xpEarned} Catnip earned 🌿
       </div>
     </div>
   );
