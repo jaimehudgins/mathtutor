@@ -77,7 +77,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
             Math Cat
             <Sparkles className="text-yellow-400" size={24} />
           </h1>
-          <p className="text-cyan-400 mt-1">7th Grade Mississippi Standards</p>
+          <p className="text-cyan-400 mt-1">Your purr-sonal math companion</p>
         </div>
 
         {/* Auth Card */}
