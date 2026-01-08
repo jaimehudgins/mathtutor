@@ -10,8 +10,9 @@ import {
   getAvailableStandardIds,
 } from "@/lib/problems";
 import { STANDARDS } from "@/constants/standards";
-import { recordProblemAttempt } from "@/lib/supabase-storage";
+import { recordProblemAttempt, ProblemResult } from "@/lib/supabase-storage";
 import { getCelebration, getEncouragement } from "@/lib/cats";
+import { XPPopup } from "./XPPopup";
 import {
   CheckCircle,
   XCircle,
@@ -55,6 +56,8 @@ export function PracticeArea({
     gif: string;
     message: string;
   } | null>(null);
+  const [xpResult, setXpResult] = useState<ProblemResult | null>(null);
+  const [showXpPopup, setShowXpPopup] = useState(false);
 
   const loadNewProblem = useCallback(() => {
     let newProblem: Problem | null;
@@ -68,6 +71,8 @@ export function PracticeArea({
     setFeedback("none");
     setShowExplanation(false);
     setCatReward(null);
+    setXpResult(null);
+    setShowXpPopup(false);
   }, [selectedStandardId]);
 
   useEffect(() => {
@@ -81,14 +86,22 @@ export function PracticeArea({
     setSubmitting(true);
     const isCorrect = checkAnswer(problem, userAnswer);
 
-    // Record to Supabase
-    await recordProblemAttempt(userId, problem, userAnswer.trim(), isCorrect);
+    // Record to Supabase and get XP result
+    const result = await recordProblemAttempt(
+      userId,
+      problem,
+      userAnswer.trim(),
+      isCorrect,
+    );
+    setXpResult(result);
 
     if (isCorrect) {
-      const newStreak = streak + 1;
+      const newStreak = result.currentStreak;
       setFeedback("correct");
       setStreak(newStreak);
       setCatReward(getCelebration(newStreak));
+      // Show XP popup
+      setShowXpPopup(true);
     } else {
       setFeedback("incorrect");
       setStreak(0);
@@ -125,6 +138,19 @@ export function PracticeArea({
 
   return (
     <div className={cn("neon-card rounded-xl p-6 neon-border-pink", className)}>
+      {/* XP Popup */}
+      {showXpPopup && xpResult && (
+        <XPPopup
+          xpEarned={xpResult.xpEarned}
+          xpBreakdown={xpResult.xpBreakdown}
+          newBadges={xpResult.newBadges}
+          newLevel={xpResult.newLevel}
+          levelInfo={xpResult.levelInfo}
+          currentStreak={xpResult.currentStreak}
+          onClose={() => setShowXpPopup(false)}
+        />
+      )}
+
       {/* Header with standard info and streak */}
       <div className="flex justify-between items-start mb-4">
         <div>

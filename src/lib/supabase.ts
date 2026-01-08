@@ -52,4 +52,16 @@ export interface UserStats {
   total_study_time_minutes: number;
   weekly_study_time_minutes: number;
   last_week_reset?: string;
+  // Gamification fields
+  xp: number;
+  level: number;
+  current_streak: number;
+  best_streak: number;
+  badges: string[];
+  last_problem_date?: string;
+  daily_problems: number;
+  daily_correct: number;
+  session_correct: number;
+  session_wrong: number;
+  domains_attempted: string[];
 }

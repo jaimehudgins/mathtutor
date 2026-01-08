@@ -6,6 +6,8 @@ import { createClient, hasSupabaseConfig } from "@/lib/supabase";
 import { Auth } from "@/components/Auth";
 import { PracticeArea, StandardSelector } from "@/components/PracticeArea";
 import { ProgressCard } from "@/components/ProgressCard";
+import { PlayerCard } from "@/components/PlayerCard";
+import { BadgesDisplay } from "@/components/BadgesDisplay";
 import { ChatTutor } from "@/components/ChatTutor";
 import { HomeworkHelper } from "@/components/HomeworkHelper";
 import {
@@ -201,8 +203,9 @@ export default function Home() {
                 onProblemComplete={handleProblemComplete}
               />
             </div>
-            <div className="lg:col-span-1">
-              <ProgressCard key={refreshKey} userId={user.id} />
+            <div className="lg:col-span-1 space-y-6">
+              <PlayerCard key={`player-${refreshKey}`} userId={user.id} />
+              <ProgressCard key={`progress-${refreshKey}`} userId={user.id} />
             </div>
           </div>
         )}
@@ -264,13 +267,14 @@ export default function Home() {
         )}
 
         {activeTab === "progress" && (
-          <div className="space-y-6">
-            <ProgressCard
-              key={refreshKey}
+          <div className="space-y-6 max-w-2xl mx-auto">
+            <PlayerCard
+              key={`player-progress-${refreshKey}`}
               userId={user.id}
-              className="max-w-2xl mx-auto"
             />
-            <div className="neon-card rounded-xl p-6 max-w-2xl mx-auto neon-border-yellow">
+            <BadgesDisplay key={`badges-${refreshKey}`} userId={user.id} />
+            <ProgressCard key={`progress-tab-${refreshKey}`} userId={user.id} />
+            <div className="neon-card rounded-xl p-6 neon-border-yellow">
               <h3 className="font-semibold neon-text-yellow mb-4">
                 Study Tips 🐱
               </h3>
