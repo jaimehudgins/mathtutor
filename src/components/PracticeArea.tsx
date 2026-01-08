@@ -11,6 +11,7 @@ import {
 } from "@/lib/problems";
 import { STANDARDS, getDomainColor } from "@/constants/standards";
 import { recordProblemAttempt } from "@/lib/supabase-storage";
+import { getCelebration, getEncouragement } from "@/lib/cats";
 import {
   CheckCircle,
   XCircle,
@@ -40,6 +41,10 @@ export function PracticeArea({
   const [showExplanation, setShowExplanation] = useState(false);
   const [streak, setStreak] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [catReward, setCatReward] = useState<{
+    gif: string;
+    message: string;
+  } | null>(null);
 
   const loadNewProblem = useCallback(() => {
     let newProblem: Problem | null;
@@ -52,6 +57,7 @@ export function PracticeArea({
     setUserAnswer("");
     setFeedback("none");
     setShowExplanation(false);
+    setCatReward(null);
   }, [selectedStandardId]);
 
   useEffect(() => {
@@ -69,11 +75,14 @@ export function PracticeArea({
     await recordProblemAttempt(userId, problem, userAnswer.trim(), isCorrect);
 
     if (isCorrect) {
+      const newStreak = streak + 1;
       setFeedback("correct");
-      setStreak((prev) => prev + 1);
+      setStreak(newStreak);
+      setCatReward(getCelebration(newStreak));
     } else {
       setFeedback("incorrect");
       setStreak(0);
+      setCatReward(getEncouragement());
     }
 
     setShowExplanation(true);
@@ -129,9 +138,10 @@ export function PracticeArea({
           )}
         </div>
         {streak > 0 && (
-          <div className="flex items-center gap-1 text-orange-500">
+          <div className="flex items-center gap-1 text-orange-500 animate-pulse">
             <span className="text-lg">🔥</span>
             <span className="font-bold">{streak}</span>
+            <span className="text-lg">🐱</span>
           </div>
         )}
       </div>
@@ -194,7 +204,7 @@ export function PracticeArea({
           className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 hover:underline mb-4"
         >
           <Lightbulb size={18} />
-          <span>Need a hint?</span>
+          <span>Need a hint? 🐱</span>
         </button>
       )}
 
@@ -210,8 +220,36 @@ export function PracticeArea({
         </div>
       )}
 
+      {/* Cat Reward Display */}
+      {catReward && (
+        <div
+          className={cn(
+            "rounded-lg p-4 mb-4 text-center",
+            feedback === "correct"
+              ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+              : "bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800",
+          )}
+        >
+          <p
+            className={cn(
+              "text-lg font-bold mb-3",
+              feedback === "correct"
+                ? "text-green-700 dark:text-green-300"
+                : "text-orange-700 dark:text-orange-300",
+            )}
+          >
+            {catReward.message}
+          </p>
+          <img
+            src={catReward.gif}
+            alt="Cat reward"
+            className="mx-auto rounded-lg max-h-40 object-contain"
+          />
+        </div>
+      )}
+
       {/* Feedback */}
-      {feedback === "correct" && (
+      {feedback === "correct" && !catReward && (
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
           <div className="flex items-center gap-2 text-green-700 dark:text-green-300 font-semibold">
             <CheckCircle size={24} />
@@ -220,7 +258,7 @@ export function PracticeArea({
         </div>
       )}
 
-      {feedback === "incorrect" && (
+      {feedback === "incorrect" && !catReward && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
           <div className="flex items-center gap-2 text-red-700 dark:text-red-300 font-semibold">
             <XCircle size={24} />
@@ -228,6 +266,15 @@ export function PracticeArea({
               Not quite. The correct answer is: {problem.correctAnswer}
             </span>
           </div>
+        </div>
+      )}
+
+      {/* Show correct answer for incorrect feedback with cat */}
+      {feedback === "incorrect" && catReward && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+          <p className="text-blue-700 dark:text-blue-300">
+            <strong>The correct answer was:</strong> {problem.correctAnswer}
+          </p>
         </div>
       )}
 
@@ -253,7 +300,7 @@ export function PracticeArea({
               "bg-green-600 text-white hover:bg-green-700",
             )}
           >
-            <span>Next Problem</span>
+            <span>Next Problem 🐱</span>
             <ArrowRight size={20} />
           </button>
           <button
@@ -295,7 +342,7 @@ export function StandardSelector({
       )}
     >
       <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
-        Practice by Standard
+        Practice by Standard 🐱
       </h3>
       <div className="flex flex-wrap gap-2">
         <button

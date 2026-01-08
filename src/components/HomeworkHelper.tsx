@@ -1,14 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
-import { cn } from '@/lib/utils';
-import { Camera, Upload, Send, X, Image as ImageIcon, MessageCircle, Loader2, RefreshCw } from 'lucide-react';
+import { useState, useRef } from "react";
+import { cn } from "@/lib/utils";
+import { getRandomCat, WELCOME_CATS, THINKING_CATS } from "@/lib/cats";
+import {
+  Camera,
+  Upload,
+  Send,
+  X,
+  Image as ImageIcon,
+  MessageCircle,
+  RefreshCw,
+} from "lucide-react";
 
 interface Message {
   id: string;
-  role: 'student' | 'tutor';
+  role: "student" | "tutor";
   content: string;
   image?: string;
+  catGif?: string;
   timestamp: Date;
 }
 
@@ -19,21 +29,24 @@ interface HomeworkHelperProps {
 export function HomeworkHelper({ className }: HomeworkHelperProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: '1',
-      role: 'tutor',
-      content: "Hi! I'm here to help with your homework. You can:\n\n• Take a photo of your homework problem\n• Upload an image from your device\n• Type out the problem\n\nI'll help you understand and solve it step by step!",
+      id: "1",
+      role: "tutor",
+      content:
+        "Hi there! 🐱 I'm your homework helper cat! You can:\n\n• Take a photo of your homework problem\n• Upload an image from your device\n• Type out the problem\n\nI'll help you understand and solve it step by step! Meow!",
+      catGif: getRandomCat(WELCOME_CATS),
       timestamp: new Date(),
     },
   ]);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [thinkingCat, setThinkingCat] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +54,7 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
     if (file) {
       // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Image is too large. Please use an image under 5MB.');
+        alert("Image is too large. Please use an image under 5MB.");
         return;
       }
 
@@ -55,8 +68,8 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
 
   const removeImage = () => {
     setSelectedImage(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    if (cameraInputRef.current) cameraInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,26 +81,27 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
     // Add student message
     const studentMessage: Message = {
       id: Date.now().toString(),
-      role: 'student',
-      content: inputText.trim() || 'Can you help me with this problem?',
+      role: "student",
+      content: inputText.trim() || "Can you help me with this problem?",
       image: selectedImage || undefined,
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, studentMessage]);
-    setInputText('');
+    setMessages((prev) => [...prev, studentMessage]);
+    setInputText("");
     setSelectedImage(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    if (cameraInputRef.current) cameraInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
     setIsLoading(true);
+    setThinkingCat(getRandomCat(THINKING_CATS));
 
     setTimeout(scrollToBottom, 100);
 
     try {
-      const response = await fetch('/api/analyze-homework', {
-        method: 'POST',
+      const response = await fetch("/api/analyze-homework", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           image: studentMessage.image,
@@ -104,23 +118,25 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
 
       const tutorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'tutor',
+        role: "tutor",
         content: data.response,
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, tutorMessage]);
+      setMessages((prev) => [...prev, tutorMessage]);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'tutor',
-        content: "I'm sorry, I had trouble understanding that. Could you try again or describe the problem differently?",
+        role: "tutor",
+        content:
+          "Meow! 😿 I had trouble understanding that. Could you try again or describe the problem differently?",
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      setThinkingCat(null);
       setTimeout(scrollToBottom, 100);
     }
   };
@@ -129,26 +145,37 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
     setMessages([
       {
         id: Date.now().toString(),
-        role: 'tutor',
-        content: "Ready for a new problem! Share your homework and I'll help you work through it.",
+        role: "tutor",
+        content:
+          "Purr-fect! 🐱 Ready for a new problem! Share your homework and I'll help you work through it step by step!",
+        catGif: getRandomCat(WELCOME_CATS),
         timestamp: new Date(),
       },
     ]);
-    setInputText('');
+    setInputText("");
     setSelectedImage(null);
   };
 
   return (
-    <div className={cn('bg-white dark:bg-gray-800 rounded-xl shadow-lg flex flex-col', className)}>
+    <div
+      className={cn(
+        "bg-white dark:bg-gray-800 rounded-xl shadow-lg flex flex-col",
+        className,
+      )}
+    >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
-            <MessageCircle size={18} className="text-white" />
+          <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-lg">
+            🐱
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">Homework Helper</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Photo or type your problem</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              Homework Helper Cat
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Photo or type your problem
+            </p>
           </div>
         </div>
         <button
@@ -166,18 +193,25 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
           <div
             key={msg.id}
             className={cn(
-              'flex gap-2',
-              msg.role === 'student' ? 'flex-row-reverse' : 'flex-row'
+              "flex gap-2",
+              msg.role === "student" ? "flex-row-reverse" : "flex-row",
             )}
           >
             <div
               className={cn(
-                'max-w-[85%] rounded-lg px-4 py-2',
-                msg.role === 'student'
-                  ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-100'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                "max-w-[85%] rounded-lg px-4 py-2",
+                msg.role === "student"
+                  ? "bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-100"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100",
               )}
             >
+              {msg.catGif && (
+                <img
+                  src={msg.catGif}
+                  alt="Cat helper"
+                  className="max-w-full rounded-lg mb-2 max-h-32 object-contain"
+                />
+              )}
               {msg.image && (
                 <img
                   src={msg.image}
@@ -190,9 +224,19 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
           </div>
         ))}
         {isLoading && (
-          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-            <Loader2 size={20} className="animate-spin" />
-            <span className="text-sm">Analyzing your problem...</span>
+          <div className="flex flex-col items-start gap-2">
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+              {thinkingCat && (
+                <img
+                  src={thinkingCat}
+                  alt="Thinking cat"
+                  className="max-h-24 rounded-lg mb-2"
+                />
+              )}
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                🐱 *thinking paws* Analyzing your problem...
+              </p>
+            </div>
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -218,7 +262,10 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
       )}
 
       {/* Input Area */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <form
+        onSubmit={handleSubmit}
+        className="p-4 border-t border-gray-200 dark:border-gray-700"
+      >
         <div className="flex gap-2 mb-3">
           {/* Camera button (mobile) */}
           <input
@@ -233,13 +280,13 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
             type="button"
             onClick={() => cameraInputRef.current?.click()}
             className={cn(
-              'flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-              'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
-              'hover:bg-purple-200 dark:hover:bg-purple-900/50'
+              "flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300",
+              "hover:bg-purple-200 dark:hover:bg-purple-900/50",
             )}
           >
             <Camera size={18} />
-            <span className="hidden sm:inline">Camera</span>
+            <span className="hidden sm:inline">Camera 📸</span>
           </button>
 
           {/* Upload button */}
@@ -254,19 +301,19 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              'flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-              'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-              'hover:bg-blue-200 dark:hover:bg-blue-900/50'
+              "flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",
+              "hover:bg-blue-200 dark:hover:bg-blue-900/50",
             )}
           >
             <Upload size={18} />
-            <span className="hidden sm:inline">Upload</span>
+            <span className="hidden sm:inline">Upload 🐱</span>
           </button>
 
           {selectedImage && (
             <div className="flex items-center gap-1 text-green-600 dark:text-green-400 text-sm">
               <ImageIcon size={16} />
-              <span>Image ready</span>
+              <span>Image ready! 🐱</span>
             </div>
           )}
         </div>
@@ -276,12 +323,12 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type your problem or question..."
+            placeholder="Type your problem or question... 🐱"
             className={cn(
-              'flex-1 px-4 py-2 rounded-lg border',
-              'bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white',
-              'border-gray-300 dark:border-gray-600',
-              'focus:outline-none focus:ring-2 focus:ring-purple-500'
+              "flex-1 px-4 py-2 rounded-lg border",
+              "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white",
+              "border-gray-300 dark:border-gray-600",
+              "focus:outline-none focus:ring-2 focus:ring-purple-500",
             )}
             disabled={isLoading}
           />
@@ -289,9 +336,9 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
             type="submit"
             disabled={(!inputText.trim() && !selectedImage) || isLoading}
             className={cn(
-              'px-4 py-2 rounded-lg transition-colors',
-              'bg-purple-600 text-white hover:bg-purple-700',
-              'disabled:opacity-50 disabled:cursor-not-allowed'
+              "px-4 py-2 rounded-lg transition-colors",
+              "bg-purple-600 text-white hover:bg-purple-700",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
             )}
           >
             <Send size={20} />
