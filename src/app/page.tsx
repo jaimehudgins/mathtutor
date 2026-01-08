@@ -12,10 +12,10 @@ import {
   BookOpen,
   MessageCircle,
   BarChart3,
-  GraduationCap,
   LogOut,
   AlertTriangle,
   Camera,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -73,25 +73,21 @@ export default function Home() {
   // Show config error
   if (configError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 max-w-md text-center">
-          <div className="w-16 h-16 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle className="text-yellow-600" size={32} />
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="neon-card rounded-xl p-8 max-w-md text-center">
+          <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-4 neon-border-pink">
+            <AlertTriangle className="text-yellow-400" size={32} />
           </div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-xl font-bold text-white mb-2 neon-text-pink">
             Configuration Required
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-gray-300 mb-4">
             Supabase credentials are not configured. Please add your Supabase
             URL and API key to the environment variables.
           </p>
-          <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 text-left text-sm font-mono">
-            <p className="text-gray-600 dark:text-gray-400">
-              NEXT_PUBLIC_SUPABASE_URL=...
-            </p>
-            <p className="text-gray-600 dark:text-gray-400">
-              NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-            </p>
+          <div className="bg-black/50 rounded-lg p-4 text-left text-sm font-mono neon-border-cyan">
+            <p className="text-cyan-400">NEXT_PUBLIC_SUPABASE_URL=...</p>
+            <p className="text-cyan-400">NEXT_PUBLIC_SUPABASE_ANON_KEY=...</p>
           </div>
         </div>
       </div>
@@ -101,12 +97,12 @@ export default function Home() {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center mx-auto mb-4">
-            <GraduationCap className="text-white" size={24} />
+          <div className="w-16 h-16 rounded-xl bg-fuchsia-600 flex items-center justify-center mx-auto mb-4 neon-glow-pink neon-pulse">
+            <span className="text-3xl">🐱</span>
           </div>
-          <p className="text-gray-500 dark:text-gray-400">Loading...</p>
+          <p className="neon-text-cyan text-lg">Loading...</p>
         </div>
       </div>
     );
@@ -119,31 +115,32 @@ export default function Home() {
 
   // Main app
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm">
+      <header className="neon-card border-b border-fuchsia-500/30">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
-                <GraduationCap className="text-white" size={24} />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-fuchsia-600 to-cyan-500 flex items-center justify-center neon-glow-pink">
+                <span className="text-2xl">🐱</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Math Tutor
+                <h1 className="text-2xl font-bold neon-text-pink flex items-center gap-2">
+                  Math Cat
+                  <Sparkles className="text-yellow-400" size={20} />
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-cyan-400">
                   7th Grade Mississippi Standards
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">
+              <span className="text-sm text-fuchsia-300 hidden sm:inline">
                 {user.user_metadata?.name || user.email}
               </span>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-cyan-400 hover:bg-cyan-500/20 transition-colors neon-button"
               >
                 <LogOut size={16} />
                 <span className="hidden sm:inline">Logout</span>
@@ -154,7 +151,7 @@ export default function Home() {
       </header>
 
       {/* Navigation Tabs */}
-      <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <nav className="neon-card border-b border-fuchsia-500/30">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex gap-1 overflow-x-auto">
             <TabButton
@@ -162,25 +159,28 @@ export default function Home() {
               onClick={() => setActiveTab("practice")}
               icon={<BookOpen size={18} />}
               label="Practice"
+              color="cyan"
             />
             <TabButton
               active={activeTab === "homework"}
               onClick={() => setActiveTab("homework")}
               icon={<Camera size={18} />}
               label="Homework Help"
-              highlight
+              color="pink"
             />
             <TabButton
               active={activeTab === "chat"}
               onClick={() => setActiveTab("chat")}
               icon={<MessageCircle size={18} />}
               label="Tutor Chat"
+              color="green"
             />
             <TabButton
               active={activeTab === "progress"}
               onClick={() => setActiveTab("progress")}
               icon={<BarChart3 size={18} />}
               label="Progress"
+              color="yellow"
             />
           </div>
         </div>
@@ -213,21 +213,21 @@ export default function Home() {
               <HomeworkHelper className="h-[600px]" />
             </div>
             <div className="lg:col-span-1">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 mb-6">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
-                  How to Use
+              <div className="neon-card rounded-xl p-4 mb-6 neon-border-pink">
+                <h3 className="font-semibold neon-text-pink mb-3">
+                  How to Use 🐱
                 </h3>
-                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <ul className="space-y-2 text-sm text-gray-300">
                   <li className="flex items-start gap-2">
-                    <span className="text-purple-500 font-bold">1.</span>
+                    <span className="neon-text-cyan font-bold">1.</span>
                     <span>Take a photo of your homework problem</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-purple-500 font-bold">2.</span>
+                    <span className="neon-text-cyan font-bold">2.</span>
                     <span>Or type the problem in the text box</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-purple-500 font-bold">3.</span>
+                    <span className="neon-text-cyan font-bold">3.</span>
                     <span>Click send and get step-by-step help!</span>
                   </li>
                 </ul>
@@ -247,9 +247,9 @@ export default function Home() {
             </div>
             <div className="lg:col-span-1">
               <ProgressCard key={refreshKey} userId={user.id} />
-              <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
-                  Quick Topics
+              <div className="mt-6 neon-card rounded-xl p-4 neon-border-green">
+                <h3 className="font-semibold neon-text-green mb-3">
+                  Quick Topics 🐱
                 </h3>
                 <div className="space-y-2">
                   <QuickTopicButton label="Help with percents" />
@@ -270,35 +270,35 @@ export default function Home() {
               userId={user.id}
               className="max-w-2xl mx-auto"
             />
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 max-w-2xl mx-auto">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
-                Study Tips
+            <div className="neon-card rounded-xl p-6 max-w-2xl mx-auto neon-border-yellow">
+              <h3 className="font-semibold neon-text-yellow mb-4">
+                Study Tips 🐱
               </h3>
-              <ul className="space-y-3 text-gray-600 dark:text-gray-400">
+              <ul className="space-y-3 text-gray-300">
                 <li className="flex items-start gap-2">
-                  <span className="text-green-500">&#10003;</span>
+                  <span className="neon-text-green">✓</span>
                   <span>
                     Practice a little bit every day rather than cramming
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-green-500">&#10003;</span>
+                  <span className="neon-text-green">✓</span>
                   <span>
                     If you get a problem wrong, read the explanation carefully
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-green-500">&#10003;</span>
+                  <span className="neon-text-green">✓</span>
                   <span>Focus on your weakest topics first</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-green-500">&#10003;</span>
+                  <span className="neon-text-green">✓</span>
                   <span>
                     Use the chat tutor to ask questions about concepts
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-green-500">&#10003;</span>
+                  <span className="neon-text-green">✓</span>
                   <span>Aim for 80% mastery on each standard</span>
                 </li>
               </ul>
@@ -308,11 +308,8 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-        <p>
-          7th Grade Math Tutor - Mississippi College and Career Readiness
-          Standards
-        </p>
+      <footer className="mt-auto py-6 text-center text-sm text-fuchsia-400/60">
+        <p>🐱 Math Cat - 7th Grade Mississippi Standards 🐱</p>
       </footer>
     </div>
   );
@@ -323,26 +320,35 @@ function TabButton({
   onClick,
   icon,
   label,
-  highlight,
+  color = "cyan",
 }: {
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
-  highlight?: boolean;
+  color?: "cyan" | "pink" | "green" | "yellow";
 }) {
+  const colorClasses = {
+    cyan: active
+      ? "neon-text-cyan border-cyan-400"
+      : "text-cyan-400/60 border-transparent hover:text-cyan-400",
+    pink: active
+      ? "neon-text-pink border-fuchsia-400"
+      : "text-fuchsia-400/60 border-transparent hover:text-fuchsia-400",
+    green: active
+      ? "neon-text-green border-green-400"
+      : "text-green-400/60 border-transparent hover:text-green-400",
+    yellow: active
+      ? "neon-text-yellow border-yellow-400"
+      : "text-yellow-400/60 border-transparent hover:text-yellow-400",
+  };
+
   return (
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 whitespace-nowrap",
-        active
-          ? highlight
-            ? "text-purple-600 border-purple-600 dark:text-purple-400 dark:border-purple-400"
-            : "text-blue-600 border-blue-600 dark:text-blue-400 dark:border-blue-400"
-          : highlight
-            ? "text-purple-500 border-transparent hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
-            : "text-gray-500 border-transparent hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300",
+        "flex items-center gap-2 px-4 py-3 font-medium transition-all border-b-2 whitespace-nowrap neon-button",
+        colorClasses[color],
       )}
     >
       {icon}
@@ -353,7 +359,7 @@ function TabButton({
 
 function QuickTopicButton({ label }: { label: string }) {
   return (
-    <button className="w-full text-left px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+    <button className="w-full text-left px-3 py-2 rounded-lg bg-green-500/10 text-green-300 text-sm hover:bg-green-500/20 transition-colors border border-green-500/30 neon-button">
       {label}
     </button>
   );

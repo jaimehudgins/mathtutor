@@ -16,6 +16,22 @@ interface ProgressCardProps {
   className?: string;
 }
 
+// Map domain colors to neon colors
+const NEON_DOMAIN_COLORS: Record<
+  string,
+  { bg: string; bar: string; text: string }
+> = {
+  RP: { bg: "bg-cyan-500/20", bar: "bg-cyan-500", text: "text-cyan-400" },
+  NS: { bg: "bg-green-500/20", bar: "bg-green-500", text: "text-green-400" },
+  EE: {
+    bg: "bg-fuchsia-500/20",
+    bar: "bg-fuchsia-500",
+    text: "text-fuchsia-400",
+  },
+  G: { bg: "bg-orange-500/20", bar: "bg-orange-500", text: "text-orange-400" },
+  SP: { bg: "bg-pink-500/20", bar: "bg-pink-500", text: "text-pink-400" },
+};
+
 export function ProgressCard({ userId, className }: ProgressCardProps) {
   const [progress, setProgress] = useState<Progress[]>([]);
   const [stats, setStats] = useState({
@@ -86,29 +102,20 @@ export function ProgressCard({ userId, className }: ProgressCardProps) {
   if (loading) {
     return (
       <div
-        className={cn(
-          "bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6",
-          className,
-        )}
+        className={cn("neon-card rounded-xl p-6 neon-border-cyan", className)}
       >
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-          Your Progress
+        <h2 className="text-xl font-bold mb-4 neon-text-cyan">
+          Your Progress 🐱
         </h2>
         <div className="animate-pulse space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="h-20 bg-gray-200 dark:bg-gray-700 rounded-lg"
-              />
+              <div key={i} className="h-20 bg-cyan-500/10 rounded-lg" />
             ))}
           </div>
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-8 bg-gray-200 dark:bg-gray-700 rounded"
-              />
+              <div key={i} className="h-8 bg-fuchsia-500/10 rounded" />
             ))}
           </div>
         </div>
@@ -117,67 +124,60 @@ export function ProgressCard({ userId, className }: ProgressCardProps) {
   }
 
   return (
-    <div
-      className={cn(
-        "bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6",
-        className,
-      )}
-    >
-      <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-        Your Progress
+    <div className={cn("neon-card rounded-xl p-6 neon-border-cyan", className)}>
+      <h2 className="text-xl font-bold mb-4 neon-text-cyan">
+        Your Progress 🐱
       </h2>
 
       {/* Overall Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         <StatBox
           label="Problems Solved"
           value={stats.totalProblems.toString()}
-          color="bg-blue-100 dark:bg-blue-900/30"
+          color="cyan"
         />
-        <StatBox
-          label="Accuracy"
-          value={`${stats.accuracy}%`}
-          color="bg-green-100 dark:bg-green-900/30"
-        />
+        <StatBox label="Accuracy" value={`${stats.accuracy}%`} color="green" />
         <StatBox
           label="Standards Mastered"
           value={`${stats.standardsMastered}/${availableStandards.length}`}
-          color="bg-purple-100 dark:bg-purple-900/30"
+          color="pink"
         />
         <StatBox
           label="Study Time"
           value={`${studyTime.weekly}m`}
           subtext="this week"
-          color="bg-orange-100 dark:bg-orange-900/30"
+          color="yellow"
         />
       </div>
 
       {/* Progress by Domain */}
       <div className="space-y-4">
-        <h3 className="font-semibold text-gray-700 dark:text-gray-300">
-          Progress by Domain
-        </h3>
-        {progressByDomain.map(({ domain, avgMastery }) => (
-          <div key={domain.code} className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">
-                {domain.name}
-              </span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {avgMastery}%
-              </span>
+        <h3 className="font-semibold text-fuchsia-300">Progress by Domain</h3>
+        {progressByDomain.map(({ domain, avgMastery }) => {
+          const colors =
+            NEON_DOMAIN_COLORS[domain.code] || NEON_DOMAIN_COLORS.RP;
+          return (
+            <div key={domain.code} className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className={colors.text}>{domain.name}</span>
+                <span className="font-medium text-white">{avgMastery}%</span>
+              </div>
+              <div className="h-3 bg-black/30 rounded-full overflow-hidden border border-white/10">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all duration-500",
+                    colors.bar,
+                  )}
+                  style={{
+                    width: `${avgMastery}%`,
+                    boxShadow:
+                      avgMastery > 0 ? `0 0 10px currentColor` : "none",
+                  }}
+                />
+              </div>
             </div>
-            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div
-                className={cn(
-                  "h-full rounded-full transition-all duration-500",
-                  domain.color,
-                )}
-                style={{ width: `${avgMastery}%` }}
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -192,19 +192,22 @@ function StatBox({
   label: string;
   value: string;
   subtext?: string;
-  color: string;
+  color: "cyan" | "green" | "pink" | "yellow";
 }) {
+  const colorClasses = {
+    cyan: "bg-cyan-500/20 border-cyan-500/50 neon-text-cyan",
+    green: "bg-green-500/20 border-green-500/50 neon-text-green",
+    pink: "bg-fuchsia-500/20 border-fuchsia-500/50 neon-text-pink",
+    yellow: "bg-yellow-500/20 border-yellow-500/50 neon-text-yellow",
+  };
+
   return (
-    <div className={cn("rounded-lg p-3 text-center", color)}>
-      <div className="text-2xl font-bold text-gray-900 dark:text-white">
-        {value}
-      </div>
-      <div className="text-xs text-gray-600 dark:text-gray-400">{label}</div>
-      {subtext && (
-        <div className="text-xs text-gray-500 dark:text-gray-500">
-          {subtext}
-        </div>
-      )}
+    <div
+      className={cn("rounded-lg p-3 text-center border", colorClasses[color])}
+    >
+      <div className="text-2xl font-bold">{value}</div>
+      <div className="text-xs text-gray-400">{label}</div>
+      {subtext && <div className="text-xs text-gray-500">{subtext}</div>}
     </div>
   );
 }

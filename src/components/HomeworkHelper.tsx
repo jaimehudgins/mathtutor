@@ -9,8 +9,8 @@ import {
   Send,
   X,
   Image as ImageIcon,
-  MessageCircle,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 
 interface Message {
@@ -159,28 +159,29 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
   return (
     <div
       className={cn(
-        "bg-white dark:bg-gray-800 rounded-xl shadow-lg flex flex-col",
+        "neon-card rounded-xl flex flex-col neon-border-purple",
         className,
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-fuchsia-500/30">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-lg">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-fuchsia-600 to-purple-600 flex items-center justify-center text-xl neon-glow-purple">
             🐱
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">
+            <h3 className="font-semibold neon-text-pink flex items-center gap-1">
               Homework Helper Cat
+              <Sparkles size={14} className="text-yellow-400" />
             </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-fuchsia-400/60">
               Photo or type your problem
             </p>
           </div>
         </div>
         <button
           onClick={handleNewConversation}
-          className="p-2 text-gray-400 hover:text-purple-500 transition-colors"
+          className="p-2 text-fuchsia-400 hover:text-fuchsia-300 transition-colors neon-button"
           title="New conversation"
         >
           <RefreshCw size={18} />
@@ -201,8 +202,8 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
               className={cn(
                 "max-w-[85%] rounded-lg px-4 py-2",
                 msg.role === "student"
-                  ? "bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-100"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100",
+                  ? "bg-fuchsia-500/20 border border-fuchsia-500/50 text-fuchsia-100"
+                  : "bg-cyan-500/20 border border-cyan-500/50 text-cyan-100",
               )}
             >
               {msg.catGif && (
@@ -210,6 +211,7 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
                   src={msg.catGif}
                   alt="Cat helper"
                   className="max-w-full rounded-lg mb-2 max-h-32 object-contain"
+                  style={{ boxShadow: "0 0 15px rgba(0, 255, 255, 0.3)" }}
                 />
               )}
               {msg.image && (
@@ -217,6 +219,7 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
                   src={msg.image}
                   alt="Homework"
                   className="max-w-full rounded-lg mb-2 max-h-48 object-contain"
+                  style={{ boxShadow: "0 0 10px rgba(255, 0, 255, 0.3)" }}
                 />
               )}
               <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
@@ -225,15 +228,16 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
         ))}
         {isLoading && (
           <div className="flex flex-col items-start gap-2">
-            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+            <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-3">
               {thinkingCat && (
                 <img
                   src={thinkingCat}
                   alt="Thinking cat"
                   className="max-h-24 rounded-lg mb-2"
+                  style={{ boxShadow: "0 0 15px rgba(255, 255, 0, 0.3)" }}
                 />
               )}
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm neon-text-yellow">
                 🐱 *thinking paws* Analyzing your problem...
               </p>
             </div>
@@ -244,16 +248,17 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
 
       {/* Image Preview */}
       {selectedImage && (
-        <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
+        <div className="px-4 py-2 border-t border-fuchsia-500/30">
           <div className="relative inline-block">
             <img
               src={selectedImage}
               alt="Selected"
               className="max-h-24 rounded-lg"
+              style={{ boxShadow: "0 0 10px rgba(0, 255, 255, 0.5)" }}
             />
             <button
               onClick={removeImage}
-              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 neon-button"
             >
               <X size={14} />
             </button>
@@ -264,7 +269,7 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
       {/* Input Area */}
       <form
         onSubmit={handleSubmit}
-        className="p-4 border-t border-gray-200 dark:border-gray-700"
+        className="p-4 border-t border-fuchsia-500/30"
       >
         <div className="flex gap-2 mb-3">
           {/* Camera button (mobile) */}
@@ -280,9 +285,9 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
             type="button"
             onClick={() => cameraInputRef.current?.click()}
             className={cn(
-              "flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-              "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300",
-              "hover:bg-purple-200 dark:hover:bg-purple-900/50",
+              "flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all",
+              "bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/50",
+              "hover:bg-fuchsia-500/30 neon-button",
             )}
           >
             <Camera size={18} />
@@ -301,9 +306,9 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              "flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-              "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",
-              "hover:bg-blue-200 dark:hover:bg-blue-900/50",
+              "flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all",
+              "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50",
+              "hover:bg-cyan-500/30 neon-button",
             )}
           >
             <Upload size={18} />
@@ -311,7 +316,7 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
           </button>
 
           {selectedImage && (
-            <div className="flex items-center gap-1 text-green-600 dark:text-green-400 text-sm">
+            <div className="flex items-center gap-1 neon-text-green text-sm">
               <ImageIcon size={16} />
               <span>Image ready! 🐱</span>
             </div>
@@ -326,9 +331,9 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
             placeholder="Type your problem or question... 🐱"
             className={cn(
               "flex-1 px-4 py-2 rounded-lg border",
-              "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white",
-              "border-gray-300 dark:border-gray-600",
-              "focus:outline-none focus:ring-2 focus:ring-purple-500",
+              "bg-black/30 text-white placeholder-gray-500",
+              "border-fuchsia-500/50",
+              "focus:outline-none focus:border-fuchsia-400 focus:ring-1 focus:ring-fuchsia-400",
             )}
             disabled={isLoading}
           />
@@ -336,10 +341,13 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
             type="submit"
             disabled={(!inputText.trim() && !selectedImage) || isLoading}
             className={cn(
-              "px-4 py-2 rounded-lg transition-colors",
-              "bg-purple-600 text-white hover:bg-purple-700",
+              "px-4 py-2 rounded-lg transition-all",
+              "bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white",
+              "hover:from-fuchsia-500 hover:to-purple-500",
               "disabled:opacity-50 disabled:cursor-not-allowed",
+              "neon-button",
             )}
+            style={{ boxShadow: "0 0 15px rgba(191, 0, 255, 0.5)" }}
           >
             <Send size={20} />
           </button>
