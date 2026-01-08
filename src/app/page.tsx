@@ -8,11 +8,9 @@ import { PracticeArea, StandardSelector } from "@/components/PracticeArea";
 import { ProgressCard } from "@/components/ProgressCard";
 import { PlayerCard } from "@/components/PlayerCard";
 import { BadgesDisplay } from "@/components/BadgesDisplay";
-import { ChatTutor } from "@/components/ChatTutor";
 import { HomeworkHelper } from "@/components/HomeworkHelper";
 import {
   BookOpen,
-  MessageCircle,
   BarChart3,
   LogOut,
   AlertTriangle,
@@ -21,7 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Tab = "practice" | "homework" | "chat" | "progress";
+type Tab = "practice" | "homework" | "progress";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -66,10 +64,6 @@ export default function Home() {
 
   const handleProblemComplete = () => {
     setRefreshKey((prev) => prev + 1);
-  };
-
-  const handleSuggestPractice = (standardId: string) => {
-    setSelectedStandardId(standardId);
   };
 
   // Show config error
@@ -171,13 +165,6 @@ export default function Home() {
               color="pink"
             />
             <TabButton
-              active={activeTab === "chat"}
-              onClick={() => setActiveTab("chat")}
-              icon={<MessageCircle size={18} />}
-              label="Tutor Chat"
-              color="green"
-            />
-            <TabButton
               active={activeTab === "progress"}
               onClick={() => setActiveTab("progress")}
               icon={<BarChart3 size={18} />}
@@ -240,32 +227,6 @@ export default function Home() {
           </div>
         )}
 
-        {activeTab === "chat" && (
-          <div className="grid gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <ChatTutor
-                className="h-[600px]"
-                onSuggestPractice={handleSuggestPractice}
-              />
-            </div>
-            <div className="lg:col-span-1">
-              <ProgressCard key={refreshKey} userId={user.id} />
-              <div className="mt-6 neon-card rounded-xl p-4 neon-border-green">
-                <h3 className="font-semibold neon-text-green mb-3">
-                  Quick Topics 🐱
-                </h3>
-                <div className="space-y-2">
-                  <QuickTopicButton label="Help with percents" />
-                  <QuickTopicButton label="Explain negative numbers" />
-                  <QuickTopicButton label="Give me a problem" />
-                  <QuickTopicButton label="Help with equations" />
-                  <QuickTopicButton label="Circle formulas" />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {activeTab === "progress" && (
           <div className="space-y-6 max-w-2xl mx-auto">
             <PlayerCard
@@ -297,9 +258,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="neon-text-green">✓</span>
-                  <span>
-                    Use the chat tutor to ask questions about concepts
-                  </span>
+                  <span>Use Homework Help to ask questions about concepts</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="neon-text-green">✓</span>
@@ -330,7 +289,7 @@ function TabButton({
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
-  color?: "cyan" | "pink" | "green" | "yellow";
+  color?: "cyan" | "pink" | "yellow";
 }) {
   const colorClasses = {
     cyan: active
@@ -339,9 +298,6 @@ function TabButton({
     pink: active
       ? "neon-text-pink border-fuchsia-400"
       : "text-fuchsia-400/60 border-transparent hover:text-fuchsia-400",
-    green: active
-      ? "neon-text-green border-green-400"
-      : "text-green-400/60 border-transparent hover:text-green-400",
     yellow: active
       ? "neon-text-yellow border-yellow-400"
       : "text-yellow-400/60 border-transparent hover:text-yellow-400",
@@ -357,14 +313,6 @@ function TabButton({
     >
       {icon}
       <span>{label}</span>
-    </button>
-  );
-}
-
-function QuickTopicButton({ label }: { label: string }) {
-  return (
-    <button className="w-full text-left px-3 py-2 rounded-lg bg-green-500/10 text-green-300 text-sm hover:bg-green-500/20 transition-colors border border-green-500/30 neon-button">
-      {label}
     </button>
   );
 }
