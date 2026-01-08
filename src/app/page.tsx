@@ -129,7 +129,7 @@ export default function Home() {
                   <Sparkles className="text-yellow-400" size={20} />
                 </h1>
                 <p className="text-sm text-cyan-400">
-                  7th Grade Mississippi Standards
+                  Your purr-sonal math companion
                 </p>
               </div>
             </div>
