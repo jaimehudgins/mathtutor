@@ -98,6 +98,15 @@ Remember: Your job is to help him become INDEPENDENT. Every hint-seeking loop sh
 
 export async function POST(request: NextRequest) {
   try {
+    // Check for API key
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error("ANTHROPIC_API_KEY is not set");
+      return NextResponse.json(
+        { error: "API configuration error. Please contact support." },
+        { status: 500 },
+      );
+    }
+
     const { image, text, messageHistory } = await request.json();
 
     if (!image && !text) {
@@ -184,6 +193,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ response: assistantMessage });
   } catch (error) {
     console.error("Error analyzing homework:", error);
+
+    // More specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes("API key")) {
+        return NextResponse.json(
+          { error: "API key error. Please check configuration." },
+          { status: 500 },
+        );
+      }
+      if (error.message.includes("rate")) {
+        return NextResponse.json(
+          { error: "Too many requests. Please wait a moment and try again." },
+          { status: 429 },
+        );
+      }
+    }
+
     return NextResponse.json(
       { error: "Failed to analyze homework. Please try again." },
       { status: 500 },

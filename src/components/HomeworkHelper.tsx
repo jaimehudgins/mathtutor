@@ -126,11 +126,12 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
       setMessages((prev) => [...prev, tutorMessage]);
     } catch (error) {
       console.error("Error:", error);
+      const errorText =
+        error instanceof Error ? error.message : "Unknown error";
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "tutor",
-        content:
-          "Meow! 😿 I had trouble understanding that. Could you try again or describe the problem differently?",
+        content: `Meow! 😿 I had trouble with that: ${errorText}. Could you try again or describe the problem differently?`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
