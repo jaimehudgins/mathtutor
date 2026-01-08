@@ -9,6 +9,8 @@ import { ProgressCard } from "@/components/ProgressCard";
 import { PlayerCard } from "@/components/PlayerCard";
 import { BadgesDisplay } from "@/components/BadgesDisplay";
 import { HomeworkHelper } from "@/components/HomeworkHelper";
+import { ReferenceCard } from "@/components/ReferenceCard";
+import { FlashCardGame } from "@/components/FlashCardGame";
 import {
   BookOpen,
   BarChart3,
@@ -16,10 +18,11 @@ import {
   AlertTriangle,
   Camera,
   Sparkles,
+  Library,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Tab = "practice" | "homework" | "progress";
+type Tab = "practice" | "homework" | "reference" | "progress";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -165,6 +168,13 @@ export default function Home() {
               color="pink"
             />
             <TabButton
+              active={activeTab === "reference"}
+              onClick={() => setActiveTab("reference")}
+              icon={<Library size={18} />}
+              label="Reference"
+              color="green"
+            />
+            <TabButton
               active={activeTab === "progress"}
               onClick={() => setActiveTab("progress")}
               icon={<BarChart3 size={18} />}
@@ -223,6 +233,46 @@ export default function Home() {
                 </ul>
               </div>
               <ProgressCard key={refreshKey} userId={user.id} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "reference" && (
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-6">
+              <FlashCardGame
+                userId={user.id}
+                onXPEarned={handleProblemComplete}
+              />
+              <ReferenceCard />
+            </div>
+            <div className="lg:col-span-1 space-y-6">
+              <PlayerCard key={`player-ref-${refreshKey}`} userId={user.id} />
+              <div className="neon-card rounded-xl p-4 neon-border-green">
+                <h3 className="font-semibold neon-text-green mb-3">
+                  Study Smart 🐱
+                </h3>
+                <ul className="space-y-2 text-sm text-gray-300">
+                  <li className="flex items-start gap-2">
+                    <span className="neon-text-cyan">📚</span>
+                    <span>
+                      Use the reference cards to look up formulas and vocab
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="neon-text-pink">🎮</span>
+                    <span>
+                      Play the flash card game to earn +5 XP per correct answer!
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="neon-text-yellow">💡</span>
+                    <span>
+                      Mix it up - try vocab only, formulas only, or mixed mode
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         )}
@@ -289,7 +339,7 @@ function TabButton({
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
-  color?: "cyan" | "pink" | "yellow";
+  color?: "cyan" | "pink" | "yellow" | "green";
 }) {
   const colorClasses = {
     cyan: active
@@ -301,6 +351,9 @@ function TabButton({
     yellow: active
       ? "neon-text-yellow border-yellow-400"
       : "text-yellow-400/60 border-transparent hover:text-yellow-400",
+    green: active
+      ? "neon-text-green border-green-400"
+      : "text-green-400/60 border-transparent hover:text-green-400",
   };
 
   return (
