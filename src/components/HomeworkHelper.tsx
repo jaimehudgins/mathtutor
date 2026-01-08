@@ -1,0 +1,303 @@
+'use client';
+
+import { useState, useRef } from 'react';
+import { cn } from '@/lib/utils';
+import { Camera, Upload, Send, X, Image as ImageIcon, MessageCircle, Loader2, RefreshCw } from 'lucide-react';
+
+interface Message {
+  id: string;
+  role: 'student' | 'tutor';
+  content: string;
+  image?: string;
+  timestamp: Date;
+}
+
+interface HomeworkHelperProps {
+  className?: string;
+}
+
+export function HomeworkHelper({ className }: HomeworkHelperProps) {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'tutor',
+      content: "Hi! I'm here to help with your homework. You can:\n\n• Take a photo of your homework problem\n• Upload an image from your device\n• Type out the problem\n\nI'll help you understand and solve it step by step!",
+      timestamp: new Date(),
+    },
+  ]);
+  const [inputText, setInputText] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image is too large. Please use an image under 5MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!inputText.trim() && !selectedImage) return;
+    if (isLoading) return;
+
+    // Add student message
+    const studentMessage: Message = {
+      id: Date.now().toString(),
+      role: 'student',
+      content: inputText.trim() || 'Can you help me with this problem?',
+      image: selectedImage || undefined,
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, studentMessage]);
+    setInputText('');
+    setSelectedImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
+    setIsLoading(true);
+
+    setTimeout(scrollToBottom, 100);
+
+    try {
+      const response = await fetch('/api/analyze-homework', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: studentMessage.image,
+          text: studentMessage.content,
+          messageHistory: messages,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      const tutorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'tutor',
+        content: data.response,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, tutorMessage]);
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'tutor',
+        content: "I'm sorry, I had trouble understanding that. Could you try again or describe the problem differently?",
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+      setTimeout(scrollToBottom, 100);
+    }
+  };
+
+  const handleNewConversation = () => {
+    setMessages([
+      {
+        id: Date.now().toString(),
+        role: 'tutor',
+        content: "Ready for a new problem! Share your homework and I'll help you work through it.",
+        timestamp: new Date(),
+      },
+    ]);
+    setInputText('');
+    setSelectedImage(null);
+  };
+
+  return (
+    <div className={cn('bg-white dark:bg-gray-800 rounded-xl shadow-lg flex flex-col', className)}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
+            <MessageCircle size={18} className="text-white" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Homework Helper</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Photo or type your problem</p>
+          </div>
+        </div>
+        <button
+          onClick={handleNewConversation}
+          className="p-2 text-gray-400 hover:text-purple-500 transition-colors"
+          title="New conversation"
+        >
+          <RefreshCw size={18} />
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px] max-h-[450px]">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={cn(
+              'flex gap-2',
+              msg.role === 'student' ? 'flex-row-reverse' : 'flex-row'
+            )}
+          >
+            <div
+              className={cn(
+                'max-w-[85%] rounded-lg px-4 py-2',
+                msg.role === 'student'
+                  ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-100'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+              )}
+            >
+              {msg.image && (
+                <img
+                  src={msg.image}
+                  alt="Homework"
+                  className="max-w-full rounded-lg mb-2 max-h-48 object-contain"
+                />
+              )}
+              <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <Loader2 size={20} className="animate-spin" />
+            <span className="text-sm">Analyzing your problem...</span>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Image Preview */}
+      {selectedImage && (
+        <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
+          <div className="relative inline-block">
+            <img
+              src={selectedImage}
+              alt="Selected"
+              className="max-h-24 rounded-lg"
+            />
+            <button
+              onClick={removeImage}
+              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Input Area */}
+      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex gap-2 mb-3">
+          {/* Camera button (mobile) */}
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleImageSelect}
+            ref={cameraInputRef}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            className={cn(
+              'flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+              'hover:bg-purple-200 dark:hover:bg-purple-900/50'
+            )}
+          >
+            <Camera size={18} />
+            <span className="hidden sm:inline">Camera</span>
+          </button>
+
+          {/* Upload button */}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            ref={fileInputRef}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className={cn(
+              'flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+              'hover:bg-blue-200 dark:hover:bg-blue-900/50'
+            )}
+          >
+            <Upload size={18} />
+            <span className="hidden sm:inline">Upload</span>
+          </button>
+
+          {selectedImage && (
+            <div className="flex items-center gap-1 text-green-600 dark:text-green-400 text-sm">
+              <ImageIcon size={16} />
+              <span>Image ready</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="Type your problem or question..."
+            className={cn(
+              'flex-1 px-4 py-2 rounded-lg border',
+              'bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white',
+              'border-gray-300 dark:border-gray-600',
+              'focus:outline-none focus:ring-2 focus:ring-purple-500'
+            )}
+            disabled={isLoading}
+          />
+          <button
+            type="submit"
+            disabled={(!inputText.trim() && !selectedImage) || isLoading}
+            className={cn(
+              'px-4 py-2 rounded-lg transition-colors',
+              'bg-purple-600 text-white hover:bg-purple-700',
+              'disabled:opacity-50 disabled:cursor-not-allowed'
+            )}
+          >
+            <Send size={20} />
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

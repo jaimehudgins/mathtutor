@@ -7,6 +7,7 @@ import { Auth } from "@/components/Auth";
 import { PracticeArea, StandardSelector } from "@/components/PracticeArea";
 import { ProgressCard } from "@/components/ProgressCard";
 import { ChatTutor } from "@/components/ChatTutor";
+import { HomeworkHelper } from "@/components/HomeworkHelper";
 import {
   BookOpen,
   MessageCircle,
@@ -14,10 +15,11 @@ import {
   GraduationCap,
   LogOut,
   AlertTriangle,
+  Camera,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Tab = "practice" | "chat" | "progress";
+type Tab = "practice" | "homework" | "chat" | "progress";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -136,7 +138,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">
                 {user.user_metadata?.name || user.email}
               </span>
               <button
@@ -144,7 +146,7 @@ export default function Home() {
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 <LogOut size={16} />
-                <span>Logout</span>
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
@@ -154,12 +156,19 @@ export default function Home() {
       {/* Navigation Tabs */}
       <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto">
             <TabButton
               active={activeTab === "practice"}
               onClick={() => setActiveTab("practice")}
               icon={<BookOpen size={18} />}
               label="Practice"
+            />
+            <TabButton
+              active={activeTab === "homework"}
+              onClick={() => setActiveTab("homework")}
+              icon={<Camera size={18} />}
+              label="Homework Help"
+              highlight
             />
             <TabButton
               active={activeTab === "chat"}
@@ -193,6 +202,36 @@ export default function Home() {
               />
             </div>
             <div className="lg:col-span-1">
+              <ProgressCard key={refreshKey} userId={user.id} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "homework" && (
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <HomeworkHelper className="h-[600px]" />
+            </div>
+            <div className="lg:col-span-1">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 mb-6">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+                  How to Use
+                </h3>
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-500 font-bold">1.</span>
+                    <span>Take a photo of your homework problem</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-500 font-bold">2.</span>
+                    <span>Or type the problem in the text box</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-500 font-bold">3.</span>
+                    <span>Click send and get step-by-step help!</span>
+                  </li>
+                </ul>
+              </div>
               <ProgressCard key={refreshKey} userId={user.id} />
             </div>
           </div>
@@ -284,20 +323,26 @@ function TabButton({
   onClick,
   icon,
   label,
+  highlight,
 }: {
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
+  highlight?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2",
+        "flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 whitespace-nowrap",
         active
-          ? "text-blue-600 border-blue-600 dark:text-blue-400 dark:border-blue-400"
-          : "text-gray-500 border-transparent hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300",
+          ? highlight
+            ? "text-purple-600 border-purple-600 dark:text-purple-400 dark:border-purple-400"
+            : "text-blue-600 border-blue-600 dark:text-blue-400 dark:border-blue-400"
+          : highlight
+            ? "text-purple-500 border-transparent hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+            : "text-gray-500 border-transparent hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300",
       )}
     >
       {icon}
