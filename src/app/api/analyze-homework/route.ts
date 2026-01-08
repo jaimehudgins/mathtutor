@@ -197,8 +197,37 @@ export async function POST(request: NextRequest) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
+    // Check for credit/billing issues
+    if (
+      errorMessage.includes("credit") ||
+      errorMessage.includes("billing") ||
+      errorMessage.includes("balance")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Meow! 😿 The Helper Cat is taking a catnap right now. Please let your aunt/uncle know so they can wake me up!",
+        },
+        { status: 503 },
+      );
+    }
+
+    // Check for rate limiting
+    if (errorMessage.includes("rate") || errorMessage.includes("too many")) {
+      return NextResponse.json(
+        {
+          error:
+            "Whoa, slow down! 🐱 This cat needs a moment to catch up. Try again in a few seconds!",
+        },
+        { status: 429 },
+      );
+    }
+
     return NextResponse.json(
-      { error: `API Error: ${errorMessage}` },
+      {
+        error:
+          "Meow! 😿 Something went wrong. Try again or describe your problem differently!",
+      },
       { status: 500 },
     );
   }
