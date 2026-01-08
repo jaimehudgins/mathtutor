@@ -195,19 +195,35 @@ function StatBox({
   color: "cyan" | "green" | "pink" | "yellow";
 }) {
   const colorClasses = {
-    cyan: "bg-cyan-500/20 border-cyan-500/50 neon-text-cyan",
-    green: "bg-green-500/20 border-green-500/50 neon-text-green",
-    pink: "bg-fuchsia-500/20 border-fuchsia-500/50 neon-text-pink",
-    yellow: "bg-yellow-500/20 border-yellow-500/50 neon-text-yellow",
+    cyan: {
+      box: "bg-cyan-900/40 border-cyan-500/50",
+      value: "text-cyan-300",
+      label: "text-cyan-100",
+    },
+    green: {
+      box: "bg-green-900/40 border-green-500/50",
+      value: "text-green-300",
+      label: "text-green-100",
+    },
+    pink: {
+      box: "bg-fuchsia-900/40 border-fuchsia-500/50",
+      value: "text-fuchsia-300",
+      label: "text-fuchsia-100",
+    },
+    yellow: {
+      box: "bg-yellow-900/40 border-yellow-500/50",
+      value: "text-yellow-300",
+      label: "text-yellow-100",
+    },
   };
 
+  const classes = colorClasses[color];
+
   return (
-    <div
-      className={cn("rounded-lg p-3 text-center border", colorClasses[color])}
-    >
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="text-xs text-gray-400">{label}</div>
-      {subtext && <div className="text-xs text-gray-500">{subtext}</div>}
+    <div className={cn("rounded-lg p-3 text-center border", classes.box)}>
+      <div className={cn("text-2xl font-bold", classes.value)}>{value}</div>
+      <div className={cn("text-xs font-medium", classes.label)}>{label}</div>
+      {subtext && <div className={cn("text-xs", classes.label)}>{subtext}</div>}
     </div>
   );
 }
