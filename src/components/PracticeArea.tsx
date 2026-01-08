@@ -20,6 +20,7 @@ import {
   ArrowRight,
   RotateCcw,
   Sparkles,
+  RefreshCw,
 } from "lucide-react";
 
 interface PracticeAreaProps {
@@ -29,7 +30,12 @@ interface PracticeAreaProps {
   className?: string;
 }
 
-type FeedbackState = "none" | "correct" | "incorrect" | "hint";
+type FeedbackState =
+  | "none"
+  | "correct"
+  | "first-try-wrong"
+  | "second-try-wrong"
+  | "hint";
 
 // Neon domain colors
 const NEON_DOMAIN_COLORS: Record<string, string> = {
@@ -58,6 +64,7 @@ export function PracticeArea({
   } | null>(null);
   const [xpResult, setXpResult] = useState<ProblemResult | null>(null);
   const [showXpPopup, setShowXpPopup] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0);
 
   const loadNewProblem = useCallback(() => {
     let newProblem: Problem | null;
@@ -73,6 +80,7 @@ export function PracticeArea({
     setCatReward(null);
     setXpResult(null);
     setShowXpPopup(false);
+    setAttemptCount(0);
   }, [selectedStandardId]);
 
   useEffect(() => {
@@ -85,32 +93,50 @@ export function PracticeArea({
 
     setSubmitting(true);
     const isCorrect = checkAnswer(problem, userAnswer);
-
-    // Record to Supabase and get XP result
-    const result = await recordProblemAttempt(
-      userId,
-      problem,
-      userAnswer.trim(),
-      isCorrect,
-    );
-    setXpResult(result);
+    const newAttemptCount = attemptCount + 1;
+    setAttemptCount(newAttemptCount);
 
     if (isCorrect) {
+      // Record to Supabase and get XP result
+      const result = await recordProblemAttempt(
+        userId,
+        problem,
+        userAnswer.trim(),
+        true,
+      );
+      setXpResult(result);
+
       const newStreak = result.currentStreak;
       setFeedback("correct");
       setStreak(newStreak);
       setCatReward(getCelebration(newStreak));
-      // Show XP popup
       setShowXpPopup(true);
+      setShowExplanation(true);
+      onProblemComplete?.(true);
     } else {
-      setFeedback("incorrect");
-      setStreak(0);
-      setCatReward(getEncouragement());
+      // First wrong attempt - show hint and allow retry
+      if (newAttemptCount === 1) {
+        setFeedback("first-try-wrong");
+        setUserAnswer(""); // Clear for second attempt
+      } else {
+        // Second wrong attempt - record as incorrect, show answer
+        const result = await recordProblemAttempt(
+          userId,
+          problem,
+          userAnswer.trim(),
+          false,
+        );
+        setXpResult(result);
+
+        setFeedback("second-try-wrong");
+        setStreak(0);
+        setCatReward(getEncouragement());
+        setShowExplanation(true);
+        onProblemComplete?.(false);
+      }
     }
 
-    setShowExplanation(true);
     setSubmitting(false);
-    onProblemComplete?.(isCorrect);
   };
 
   const handleShowHint = () => {
@@ -135,6 +161,8 @@ export function PracticeArea({
   const domainColor = standard
     ? NEON_DOMAIN_COLORS[standard.domainCode] || "bg-fuchsia-500"
     : "bg-fuchsia-500";
+
+  const isFinished = feedback === "correct" || feedback === "second-try-wrong";
 
   return (
     <div className={cn("neon-card rounded-xl p-6 neon-border-pink", className)}>
@@ -191,28 +219,27 @@ export function PracticeArea({
             type="text"
             value={userAnswer}
             onChange={(e) => setUserAnswer(e.target.value)}
-            placeholder="Enter your answer..."
+            placeholder={
+              feedback === "first-try-wrong"
+                ? "Try again..."
+                : "Enter your answer..."
+            }
             className={cn(
               "flex-1 px-4 py-3 rounded-lg border-2 text-lg font-mono",
               "bg-black/30 text-white placeholder-gray-500",
               "focus:outline-none",
               feedback === "correct" &&
                 "border-green-500 bg-green-500/20 neon-border-green",
-              feedback === "incorrect" && "border-red-500 bg-red-500/20",
-              feedback === "none" &&
+              feedback === "second-try-wrong" && "border-red-500 bg-red-500/20",
+              (feedback === "none" || feedback === "first-try-wrong") &&
                 "border-fuchsia-500/50 focus:border-fuchsia-400",
               feedback === "hint" && "border-yellow-500 bg-yellow-500/20",
             )}
-            disabled={feedback === "correct" || feedback === "incorrect"}
+            disabled={isFinished}
           />
           <button
             type="submit"
-            disabled={
-              !userAnswer.trim() ||
-              feedback === "correct" ||
-              feedback === "incorrect" ||
-              submitting
-            }
+            disabled={!userAnswer.trim() || isFinished || submitting}
             className={cn(
               "px-6 py-3 rounded-lg font-bold transition-all",
               "bg-gradient-to-r from-fuchsia-600 to-cyan-600 text-white",
@@ -222,12 +249,16 @@ export function PracticeArea({
             )}
             style={{ boxShadow: "0 0 15px rgba(255, 0, 255, 0.5)" }}
           >
-            {submitting ? "..." : "Check"}
+            {submitting
+              ? "..."
+              : feedback === "first-try-wrong"
+                ? "Try Again"
+                : "Check"}
           </button>
         </div>
       </form>
 
-      {/* Hint Button */}
+      {/* Hint Button - show before any attempts */}
       {feedback === "none" && (
         <button
           onClick={handleShowHint}
@@ -238,7 +269,7 @@ export function PracticeArea({
         </button>
       )}
 
-      {/* Hint Display */}
+      {/* Pre-attempt Hint Display */}
       {feedback === "hint" && (
         <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4 mb-4">
           <div className="flex items-start gap-2">
@@ -248,8 +279,31 @@ export function PracticeArea({
         </div>
       )}
 
-      {/* Cat Reward Display */}
-      {catReward && (
+      {/* First Wrong Attempt - Show hint and encourage retry */}
+      {feedback === "first-try-wrong" && (
+        <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4 mb-4">
+          <div className="flex items-start gap-2 mb-3">
+            <RefreshCw className="text-yellow-400 mt-0.5" size={20} />
+            <div>
+              <p className="text-yellow-300 font-semibold mb-1">
+                Not quite - but don't give up! 🐱
+              </p>
+              <p className="text-yellow-200 text-sm">
+                Let's paws and think about this... Here's a hint:
+              </p>
+            </div>
+          </div>
+          <div className="bg-yellow-500/10 rounded-lg p-3 ml-7">
+            <p className="text-yellow-300">{problem.hint}</p>
+          </div>
+          <p className="text-yellow-200 text-sm mt-3 ml-7">
+            You've got one more try! You're claw-some - I believe in you! 💪🐱
+          </p>
+        </div>
+      )}
+
+      {/* Cat Reward Display - only for correct or final wrong */}
+      {catReward && isFinished && (
         <div
           className={cn(
             "rounded-lg p-4 mb-4 text-center",
@@ -280,18 +334,22 @@ export function PracticeArea({
         </div>
       )}
 
-      {/* Show correct answer for incorrect feedback with cat */}
-      {feedback === "incorrect" && catReward && (
+      {/* Show correct answer for second wrong attempt */}
+      {feedback === "second-try-wrong" && (
         <div className="bg-cyan-500/20 border border-cyan-500/50 rounded-lg p-4 mb-4">
           <p className="text-cyan-300">
             <strong className="neon-text-cyan">The correct answer was:</strong>{" "}
             {problem.correctAnswer}
           </p>
+          <p className="text-cyan-200 text-sm mt-2">
+            Don't worry - every cat learns at their own pace! Let's see the
+            explanation and try another one. 🐱
+          </p>
         </div>
       )}
 
-      {/* Explanation */}
-      {showExplanation && (
+      {/* Explanation - show after finished */}
+      {showExplanation && isFinished && (
         <div className="bg-fuchsia-500/20 border border-fuchsia-500/50 rounded-lg p-4 mb-4">
           <h4 className="font-semibold neon-text-pink mb-2">Explanation 🐱</h4>
           <p className="text-fuchsia-200">{problem.explanation}</p>
@@ -299,7 +357,7 @@ export function PracticeArea({
       )}
 
       {/* Next Problem Button */}
-      {(feedback === "correct" || feedback === "incorrect") && (
+      {isFinished && (
         <div className="flex gap-3">
           <button
             onClick={handleNextProblem}
