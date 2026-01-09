@@ -207,6 +207,24 @@ export const STANDARDS: Standard[] = [
     ],
   },
   {
+    id: "7-g-5",
+    code: "7.G.5",
+    domain: "Geometry",
+    domainCode: "G",
+    title: "Angle Relationships",
+    description:
+      "Use facts about supplementary, complementary, vertical, and adjacent angles in a multi-step problem to write and solve simple equations for an unknown angle in a figure.",
+    keywords: [
+      "angle",
+      "supplementary",
+      "complementary",
+      "vertical",
+      "adjacent",
+      "degrees",
+      "°",
+    ],
+  },
+  {
     id: "7-g-6",
     code: "7.G.6",
     domain: "Geometry",

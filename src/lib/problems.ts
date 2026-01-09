@@ -263,6 +263,82 @@ const problemGenerators: Record<string, () => Problem> = {
     };
   },
 
+  "7-g-5": () => {
+    // Angle relationships
+    const type = randChoice([
+      "supplementary",
+      "complementary",
+      "vertical",
+      "linear-pair",
+    ]);
+
+    if (type === "supplementary") {
+      const angle1 = randInt(20, 160);
+      const angle2 = 180 - angle1;
+      return {
+        id: Date.now().toString(),
+        standardId: "7-g-5",
+        question: `Two angles are supplementary. One angle measures ${angle1}°. What is the measure of the other angle?`,
+        correctAnswer: angle2.toString(),
+        acceptableAnswers: [
+          angle2.toString(),
+          `${angle2}°`,
+          `${angle2} degrees`,
+        ],
+        hint: "Supplementary angles add up to 180°.",
+        explanation: `Supplementary angles sum to 180°. So the other angle = 180° - ${angle1}° = ${angle2}°.`,
+        difficulty: "easy",
+      };
+    } else if (type === "complementary") {
+      const angle1 = randInt(10, 80);
+      const angle2 = 90 - angle1;
+      return {
+        id: Date.now().toString(),
+        standardId: "7-g-5",
+        question: `Two angles are complementary. One angle measures ${angle1}°. What is the measure of the other angle?`,
+        correctAnswer: angle2.toString(),
+        acceptableAnswers: [
+          angle2.toString(),
+          `${angle2}°`,
+          `${angle2} degrees`,
+        ],
+        hint: "Complementary angles add up to 90°.",
+        explanation: `Complementary angles sum to 90°. So the other angle = 90° - ${angle1}° = ${angle2}°.`,
+        difficulty: "easy",
+      };
+    } else if (type === "vertical") {
+      const angle = randInt(15, 165);
+      return {
+        id: Date.now().toString(),
+        standardId: "7-g-5",
+        question: `Two lines intersect. One of the angles formed is ${angle}°. What is the measure of the vertical angle (the angle directly across from it)?`,
+        correctAnswer: angle.toString(),
+        acceptableAnswers: [angle.toString(), `${angle}°`, `${angle} degrees`],
+        hint: "Vertical angles are equal.",
+        explanation: `Vertical angles are always equal. So the vertical angle is also ${angle}°.`,
+        difficulty: "easy",
+      };
+    } else {
+      // linear pair
+      const angle1 = randInt(25, 155);
+      const angle2 = 180 - angle1;
+      return {
+        id: Date.now().toString(),
+        standardId: "7-g-5",
+        question: `Two angles form a linear pair (they're on a straight line). One angle measures ${angle1}°. What is the other angle?`,
+        correctAnswer: angle2.toString(),
+        acceptableAnswers: [
+          angle2.toString(),
+          `${angle2}°`,
+          `${angle2} degrees`,
+        ],
+        hint: "Angles on a straight line add up to 180°.",
+        explanation: `A linear pair adds up to 180°. So the other angle = 180° - ${angle1}° = ${angle2}°.`,
+        difficulty: "easy",
+      };
+    }
+  },
+
   "7-g-6": () => {
     // Area and volume
     const length = randInt(3, 10);
