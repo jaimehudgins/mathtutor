@@ -122,9 +122,24 @@ export async function POST(request: NextRequest) {
     // Add image if provided
     if (image) {
       // Image should be base64 encoded with data URL prefix
-      const base64Match = image.match(/^data:image\/(\w+);base64,(.+)$/);
+      // Use a more permissive regex to handle various image types (jpeg, png, gif, webp, heic, etc.)
+      const base64Match = image.match(/^data:image\/([^;]+);base64,(.+)$/);
       if (base64Match) {
-        const mediaType = `image/${base64Match[1]}` as
+        // Map various image formats to Claude-supported types
+        let imageType = base64Match[1].toLowerCase();
+
+        // Claude supports: image/jpeg, image/png, image/gif, image/webp
+        // Map common variations and unsupported types
+        if (imageType === "jpg") {
+          imageType = "jpeg";
+        } else if (!["jpeg", "png", "gif", "webp"].includes(imageType)) {
+          // For unsupported formats (heic, heif, bmp, tiff, etc.),
+          // default to jpeg as browsers typically convert on capture
+          console.log(`Unsupported image type: ${imageType}, treating as jpeg`);
+          imageType = "jpeg";
+        }
+
+        const mediaType = `image/${imageType}` as
           | "image/jpeg"
           | "image/png"
           | "image/gif"
@@ -138,6 +153,16 @@ export async function POST(request: NextRequest) {
             data: base64Data,
           },
         });
+      } else {
+        // Image was provided but couldn't be parsed
+        console.error("Failed to parse image data URL format");
+        return NextResponse.json(
+          {
+            error:
+              "Could not process the image. Please try a different image or take a new photo.",
+          },
+          { status: 400 },
+        );
       }
     }
 
