@@ -58,11 +58,52 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result as string);
+      // Use canvas to convert image to JPEG - handles iOS HEIC and ensures consistent format
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+
+      img.onload = () => {
+        // Create canvas with image dimensions (max 2048px to keep size reasonable)
+        const maxDim = 2048;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = (height / width) * maxDim;
+            width = maxDim;
+          } else {
+            width = (width / height) * maxDim;
+            height = maxDim;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          // Convert to JPEG with 0.85 quality - consistent format for all devices
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          setSelectedImage(dataUrl);
+        }
+
+        URL.revokeObjectURL(objectUrl);
       };
-      reader.readAsDataURL(file);
+
+      img.onerror = () => {
+        // Fallback to FileReader if canvas approach fails
+        URL.revokeObjectURL(objectUrl);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setSelectedImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      };
+
+      img.src = objectUrl;
     }
   };
 
