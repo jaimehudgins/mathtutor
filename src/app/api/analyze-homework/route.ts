@@ -145,7 +145,13 @@ export async function POST(request: NextRequest) {
           | "image/gif"
           | "image/webp";
         // Strip any whitespace/newlines from base64 data (can occur with large images)
-        const base64Data = base64Match[2].replace(/\s/g, "");
+        let base64Data = base64Match[2].replace(/\s/g, "");
+
+        // Ensure proper base64 padding (must be multiple of 4 characters)
+        const paddingNeeded = (4 - (base64Data.length % 4)) % 4;
+        if (paddingNeeded > 0) {
+          base64Data += "=".repeat(paddingNeeded);
+        }
 
         // Validate base64 data before sending to API
         // Check that it's valid base64 (only contains valid base64 characters)
@@ -172,6 +178,10 @@ export async function POST(request: NextRequest) {
             { status: 400 },
           );
         }
+
+        console.log(
+          `Processing image: type=${mediaType}, base64Length=${base64Data.length}`,
+        );
 
         content.push({
           type: "image",
@@ -246,6 +256,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ response: assistantMessage });
   } catch (error) {
     console.error("Error analyzing homework:", error);
+    // Log full error details for debugging
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
 
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
