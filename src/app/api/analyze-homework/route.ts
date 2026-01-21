@@ -144,7 +144,8 @@ export async function POST(request: NextRequest) {
           | "image/png"
           | "image/gif"
           | "image/webp";
-        const base64Data = base64Match[2];
+        // Strip any whitespace/newlines from base64 data (can occur with large images)
+        const base64Data = base64Match[2].replace(/\s/g, "");
 
         // Validate base64 data before sending to API
         // Check that it's valid base64 (only contains valid base64 characters)
