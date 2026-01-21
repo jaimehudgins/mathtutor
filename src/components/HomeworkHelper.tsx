@@ -139,8 +139,10 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
     setTimeout(scrollToBottom, 100);
 
     try {
-      // Strip images from message history to avoid sending large base64 data
-      const historyWithoutImages = messages.map((msg) => ({
+      // Build history including current messages (strip images to reduce payload)
+      // Include all previous messages plus the new student message
+      const allMessages = [...messages, studentMessage];
+      const historyWithoutImages = allMessages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
