@@ -145,6 +145,33 @@ export async function POST(request: NextRequest) {
           | "image/gif"
           | "image/webp";
         const base64Data = base64Match[2];
+
+        // Validate base64 data before sending to API
+        // Check that it's valid base64 (only contains valid base64 characters)
+        const base64Regex = /^[A-Za-z0-9+/]+=*$/;
+        if (!base64Regex.test(base64Data)) {
+          console.error("Invalid base64 characters in image data");
+          return NextResponse.json(
+            {
+              error:
+                "The image couldn't be processed. Please try taking a new photo or uploading a different image.",
+            },
+            { status: 400 },
+          );
+        }
+
+        // Check minimum length (a valid image should have reasonable data)
+        if (base64Data.length < 100) {
+          console.error("Base64 data too short to be a valid image");
+          return NextResponse.json(
+            {
+              error:
+                "The image appears to be corrupted. Please try again with a different photo.",
+            },
+            { status: 400 },
+          );
+        }
+
         content.push({
           type: "image",
           source: {
@@ -245,6 +272,21 @@ export async function POST(request: NextRequest) {
             "Whoa, slow down! 🐱 This cat needs a moment to catch up. Try again in a few seconds!",
         },
         { status: 429 },
+      );
+    }
+
+    // Check for invalid image/pattern errors from the API
+    if (
+      errorMessage.includes("did not match the expected pattern") ||
+      errorMessage.includes("Could not process image") ||
+      errorMessage.includes("Invalid base64")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Meow! 😿 I couldn't read that image clearly. Try taking a new photo with better lighting, or type out the problem instead!",
+        },
+        { status: 400 },
       );
     }
 
