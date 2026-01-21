@@ -153,27 +153,32 @@ export async function POST(request: NextRequest) {
           base64Data += "=".repeat(paddingNeeded);
         }
 
-        // Validate base64 data before sending to API
-        // Check that it's valid base64 (only contains valid base64 characters)
-        const base64Regex = /^[A-Za-z0-9+/]+=*$/;
-        if (!base64Regex.test(base64Data)) {
-          console.error("Invalid base64 characters in image data");
+        // Validate by actually decoding and re-encoding to ensure clean base64
+        try {
+          const binaryData = Buffer.from(base64Data, "base64");
+          // Check that the decoded data is not empty and looks like an image
+          if (binaryData.length < 100) {
+            console.error(
+              "Decoded image data too small:",
+              binaryData.length,
+              "bytes",
+            );
+            return NextResponse.json(
+              {
+                error:
+                  "The image appears to be corrupted. Please try again with a different photo.",
+              },
+              { status: 400 },
+            );
+          }
+          // Re-encode to ensure clean base64 without any issues
+          base64Data = binaryData.toString("base64");
+        } catch (decodeError) {
+          console.error("Failed to decode base64:", decodeError);
           return NextResponse.json(
             {
               error:
                 "The image couldn't be processed. Please try taking a new photo or uploading a different image.",
-            },
-            { status: 400 },
-          );
-        }
-
-        // Check minimum length (a valid image should have reasonable data)
-        if (base64Data.length < 100) {
-          console.error("Base64 data too short to be a valid image");
-          return NextResponse.json(
-            {
-              error:
-                "The image appears to be corrupted. Please try again with a different photo.",
             },
             { status: 400 },
           );

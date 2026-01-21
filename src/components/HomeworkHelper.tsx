@@ -98,6 +98,12 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
     setTimeout(scrollToBottom, 100);
 
     try {
+      // Strip images from message history to avoid sending large base64 data
+      const historyWithoutImages = messages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
       const response = await fetch("/api/analyze-homework", {
         method: "POST",
         headers: {
@@ -106,7 +112,7 @@ export function HomeworkHelper({ className }: HomeworkHelperProps) {
         body: JSON.stringify({
           image: studentMessage.image,
           text: studentMessage.content,
-          messageHistory: messages,
+          messageHistory: historyWithoutImages,
         }),
       });
 
